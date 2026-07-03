@@ -1,0 +1,82 @@
+import { createClient } from "@/lib/supabase/server";
+import { notFound } from "next/navigation";
+import Image from "next/image";
+import BookingRequestForm from "@/components/BookingRequestForm";
+import { accentForType } from "@/lib/constants";
+
+export default async function EntertainerProfilePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const { data: entertainer } = await supabase
+    .from("entertainers")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (!entertainer) notFound();
+
+  const accent = accentForType(entertainer.entertainer_type);
+  const accentText: Record<string, string> = {
+    tangerine: "text-tangerine",
+    teal: "text-teal",
+    plum: "text-plum",
+    gold: "text-[#8a6a1e]",
+  };
+
+  return (
+    <div className="max-w-5xl mx-auto px-5 py-12 grid grid-cols-1 md:grid-cols-5 gap-10">
+      <div className="md:col-span-3">
+        <div className="relative aspect-[4/3] rounded-kephi overflow-hidden bg-ink/5 mb-6">
+          {entertainer.photo_url ? (
+            <Image
+              src={entertainer.photo_url}
+              alt={entertainer.business_name}
+              fill
+              className="object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-ink/30 font-heading text-6xl">
+              {entertainer.business_name.charAt(0)}
+            </div>
+          )}
+        </div>
+
+        <span className={`text-sm font-bold ${accentText[accent]}`}>
+          {entertainer.entertainer_type}
+        </span>
+        <h1 className="font-heading font-semibold text-3xl text-ink mt-1">
+          {entertainer.business_name}
+        </h1>
+        <p className="text-ink/60 mt-1">
+          {entertainer.town}
+          {entertainer.region ? `, ${entertainer.region}` : ""}
+        </p>
+
+        {entertainer.price_from && (
+          <p className="mt-4 font-semibold text-ink">
+            From £{entertainer.price_from} {entertainer.price_unit}
+          </p>
+        )}
+
+        {entertainer.bio && (
+          <p className="mt-6 text-ink/80 leading-relaxed whitespace-pre-line">
+            {entertainer.bio}
+          </p>
+        )}
+      </div>
+
+      <div className="md:col-span-2">
+        <div className="bg-white rounded-kephi card-shadow p-6 sticky top-24">
+          <h2 className="font-heading font-semibold text-xl text-ink mb-4">
+            Request a booking
+          </h2>
+          <BookingRequestForm entertainerId={entertainer.id} />
+        </div>
+      </div>
+    </div>
+  );
+}

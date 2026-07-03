@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-fredoka: "Fredoka", sans-serif;
+  --font-nunito: "Nunito", sans-serif;
+}
+
+body {
+  background-color: #f7f1e7;
+  color: #262130;
+}
+
+.card-shadow {
+  box-shadow: 0 6px 24px -8px rgba(38, 33, 48, 0.18);
+}
