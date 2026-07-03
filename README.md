@@ -1,5 +1,33 @@
 # Kephi — starter codebase
 
+## Update: accounts now required to book (read this if you already deployed)
+
+If you've already set up Supabase and deployed once, two things changed that
+need action on your end:
+
+1. **Run a migration in Supabase.** Open your Supabase project → **SQL
+   Editor** → **New query**, paste in the entire contents of
+   `supabase/migration_002_require_login_to_book.sql`, and click **Run**.
+   This adds the new database rule and doesn't touch any existing data.
+2. **Push the updated code** — `git add .`, `git commit -m "..."`, `git push`
+   — same as before. Vercel redeploys automatically.
+
+What changed in the app itself:
+- Browsing, searching, and viewing entertainer profiles is still fully
+  public — no account needed.
+- Sending a booking request now requires being logged in. Visitors who
+  aren't logged in see a prompt to log in or create a free account instead
+  of the booking form.
+- There are now two kinds of accounts: **entertainers** (via `/signup`,
+  same as before — leads to building a profile) and **parents/organisers**
+  (via the new `/signup/parent` — just name, email, password, no profile to
+  build). Which one someone has is simply based on whether they have a row
+  in the `entertainers` table, not a separate "role" field.
+- The navbar now reflects whether you're logged in (shows **Log out** and,
+  for entertainers, a **Dashboard** link) instead of always showing "Log in."
+
+---
+
 A working Next.js + Supabase MVP for the Kephi entertainer marketplace, styled
 with your brand (Fredoka/Nunito, jewel-tone accents, cream background).
 

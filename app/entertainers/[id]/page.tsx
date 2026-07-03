@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import BookingRequestForm from "@/components/BookingRequestForm";
+import BookingLoginPrompt from "@/components/BookingLoginPrompt";
 import { accentForType } from "@/lib/constants";
 
 export default async function EntertainerProfilePage({
@@ -18,6 +19,10 @@ export default async function EntertainerProfilePage({
     .single();
 
   if (!entertainer) notFound();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const accent = accentForType(entertainer.entertainer_type);
   const accentText: Record<string, string> = {
@@ -74,7 +79,11 @@ export default async function EntertainerProfilePage({
           <h2 className="font-heading font-semibold text-xl text-ink mb-4">
             Request a booking
           </h2>
-          <BookingRequestForm entertainerId={entertainer.id} />
+          {user ? (
+            <BookingRequestForm entertainerId={entertainer.id} />
+          ) : (
+            <BookingLoginPrompt redirectTo={`/entertainers/${entertainer.id}`} />
+          )}
         </div>
       </div>
     </div>

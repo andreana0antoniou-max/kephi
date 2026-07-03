@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function BookingRequestForm({
@@ -9,9 +9,10 @@ export default function BookingRequestForm({
   entertainerId: string;
 }) {
   const supabase = createClient();
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
-    "idle"
+  const [status, setStatus] = useState<"loading" | "idle" | "sending" | "sent" | "error">(
+    "loading"
   );
+  const [userId, setUserId] = useState<string | null>(null);
   const [form, setForm] = useState({
     parent_name: "",
     parent_email: "",
@@ -20,16 +21,32 @@ export default function BookingRequestForm({
     message: "",
   });
 
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setUserId(user.id);
+        setForm((prev) => ({
+          ...prev,
+          parent_name: (user.user_metadata?.name as string) ?? "",
+          parent_email: user.email ?? "",
+        }));
+      }
+      setStatus("idle");
+    });
+  }, [supabase]);
+
   function update(field: keyof typeof form, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!userId) return;
     setStatus("sending");
 
     const { error } = await supabase.from("booking_requests").insert({
       entertainer_id: entertainerId,
+      parent_id: userId,
       parent_name: form.parent_name,
       parent_email: form.parent_email,
       parent_phone: form.parent_phone || null,
@@ -38,6 +55,10 @@ export default function BookingRequestForm({
     });
 
     setStatus(error ? "error" : "sent");
+  }
+
+  if (status === "loading") {
+    return <div className="h-40" />;
   }
 
   if (status === "sent") {
@@ -63,8 +84,9 @@ export default function BookingRequestForm({
           type="email"
           placeholder="Your email"
           value={form.parent_email}
-          onChange={(e) => update("parent_email", e.target.value)}
-          className="rounded-full border border-ink/10 px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-tangerine"
+          readOnly
+          title="This is the email on your account"
+          className="rounded-full border border-ink/10 px-4 py-2.5 bg-ink/5 text-ink/70"
         />
         <input
           placeholder="Phone (optional)"

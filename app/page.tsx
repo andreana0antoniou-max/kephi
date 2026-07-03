@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import EntertainerCard from "@/components/EntertainerCard";
 import SearchBar from "@/components/SearchBar";
-import KephiMark from "@/components/KephiMark";
+import Image from "next/image";
 import { Entertainer } from "@/lib/types";
 
 export default async function HomePage({
@@ -51,7 +51,7 @@ export default async function HomePage({
           </div>
         ) : (
           <div className="text-center py-20">
-            <KephiMark size={36} className="mx-auto mb-4" />
+            <Image src="/kephi-mark.png" alt="" width={44} height={44} className="mx-auto mb-4 rounded-xl" />
             <p className="font-heading text-xl text-ink">No entertainers found yet</p>
             <p className="text-ink/60 mt-2">
               Try a different search, or be the first to{" "}

@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+function LoginForm() {
   const supabase = createClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -17,19 +20,29 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       setError(error.message);
       return;
     }
 
-    router.push("/dashboard");
+    if (redirectTo) {
+      router.push(redirectTo);
+    } else {
+      // No specific place to return to — send entertainers to their
+      // dashboard, and everyone else to the homepage.
+      const { data: entertainer } = await supabase
+        .from("entertainers")
+        .select("id")
+        .eq("id", data.user.id)
+        .maybeSingle();
+      router.push(entertainer ? "/dashboard" : "/");
+    }
     router.refresh();
   }
 
@@ -69,11 +82,28 @@ export default function LoginPage() {
       </form>
 
       <p className="text-center text-sm text-ink/60 mt-6">
-        New to Kephi?{" "}
+        Looking to book an entertainer?{" "}
+        <a
+          href={`/signup/parent${redirectTo ? `?redirect=${encodeURIComponent(redirectTo)}` : ""}`}
+          className="text-tangerine font-semibold"
+        >
+          Create a free account
+        </a>
+      </p>
+      <p className="text-center text-sm text-ink/60 mt-2">
+        Are you an entertainer?{" "}
         <a href="/signup" className="text-tangerine font-semibold">
           List your act
         </a>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

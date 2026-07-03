@@ -42,6 +42,7 @@ create policy "Entertainers can delete their own profile"
 create table if not exists booking_requests (
   id uuid primary key default gen_random_uuid(),
   entertainer_id uuid not null references entertainers (id) on delete cascade,
+  parent_id uuid not null references auth.users (id) on delete cascade,
   parent_name text not null,
   parent_email text not null,
   parent_phone text,
@@ -53,15 +54,20 @@ create table if not exists booking_requests (
 
 alter table booking_requests enable row level security;
 
--- Anyone can submit a booking request (no account required for parents).
-create policy "Anyone can submit a booking request"
+-- Only a logged-in parent can submit a booking request, and only as themselves.
+create policy "Logged-in users can submit a booking request"
   on booking_requests for insert
-  with check (true);
+  with check (auth.uid() = parent_id);
 
 -- Only the entertainer being contacted can read their own requests.
 create policy "Entertainers can view their own booking requests"
   on booking_requests for select
   using (auth.uid() = entertainer_id);
+
+-- Parents can view the requests they've sent.
+create policy "Parents can view their own sent requests"
+  on booking_requests for select
+  using (auth.uid() = parent_id);
 
 create policy "Entertainers can update status on their own requests"
   on booking_requests for update

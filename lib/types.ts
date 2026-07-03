@@ -17,6 +17,7 @@ export type Entertainer = {
 export type BookingRequest = {
   id: string;
   entertainer_id: string;
+  parent_id: string;
   parent_name: string;
   parent_email: string;
   parent_phone: string | null;

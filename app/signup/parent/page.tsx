@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function SignupPage() {
+function ParentSignupForm() {
   const supabase = createClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
+
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +24,7 @@ export default function SignupPage() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: { data: { name } },
     });
 
     setLoading(false);
@@ -29,20 +34,28 @@ export default function SignupPage() {
       return;
     }
 
-    // New account -> straight into building their profile.
-    router.push("/dashboard");
+    router.push(redirectTo);
+    router.refresh();
   }
 
   return (
     <div className="max-w-md mx-auto px-5 py-16">
       <h1 className="font-heading font-semibold text-3xl text-ink text-center">
-        List your act on Kephi
+        Create your account
       </h1>
       <p className="text-ink/60 text-center mt-2">
-        Create an account, then build your entertainer profile in minutes.
+        So entertainers can reply straight to you when you send a booking
+        request.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+        <input
+          required
+          placeholder="Your name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full rounded-full border border-ink/10 px-5 py-3 focus:outline-none focus:ring-2 focus:ring-tangerine"
+        />
         <input
           required
           type="email"
@@ -74,16 +87,27 @@ export default function SignupPage() {
 
       <p className="text-center text-sm text-ink/60 mt-6">
         Already have an account?{" "}
-        <a href="/login" className="text-tangerine font-semibold">
+        <a
+          href={`/login?redirect=${encodeURIComponent(redirectTo)}`}
+          className="text-tangerine font-semibold"
+        >
           Log in
         </a>
       </p>
       <p className="text-center text-sm text-ink/60 mt-2">
-        Looking to book an entertainer instead?{" "}
-        <a href="/signup/parent" className="text-tangerine font-semibold">
-          Create a free account
+        Are you an entertainer?{" "}
+        <a href="/signup" className="text-tangerine font-semibold">
+          List your act instead
         </a>
       </p>
     </div>
+  );
+}
+
+export default function ParentSignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <ParentSignupForm />
+    </Suspense>
   );
 }
