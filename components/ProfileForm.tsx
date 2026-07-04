@@ -5,16 +5,18 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { ENTERTAINER_TYPES, UK_REGIONS } from "@/lib/constants";
-import { Entertainer } from "@/lib/types";
+import { Entertainer, EntertainerPhoto } from "@/lib/types";
 
 export default function ProfileForm({
   userId,
   userEmail,
   existing,
+  galleryPhotos,
 }: {
   userId: string;
   userEmail: string;
   existing: Entertainer | null;
+  galleryPhotos: EntertainerPhoto[];
 }) {
   const supabase = createClient();
   const router = useRouter();
@@ -34,6 +36,9 @@ export default function ProfileForm({
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+
+  const [gallery, setGallery] = useState<EntertainerPhoto[]>(galleryPhotos);
+  const [galleryUploading, setGalleryUploading] = useState(false);
 
   function update(field: keyof typeof form, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -57,6 +62,44 @@ export default function ProfileForm({
       setPhotoUrl(data.publicUrl);
     }
     setUploading(false);
+  }
+
+  async function handleGalleryUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setGalleryUploading(true);
+
+    for (const file of Array.from(files)) {
+      const path = `${userId}/gallery-${Date.now()}-${file.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("entertainer-photos")
+        .upload(path, file);
+
+      if (!uploadError) {
+        const { data: publicUrlData } = supabase.storage
+          .from("entertainer-photos")
+          .getPublicUrl(path);
+
+        const { data: inserted } = await supabase
+          .from("entertainer_photos")
+          .insert({ entertainer_id: userId, photo_url: publicUrlData.publicUrl })
+          .select()
+          .single();
+
+        if (inserted) {
+          setGallery((prev) => [...prev, inserted as EntertainerPhoto]);
+        }
+      }
+    }
+
+    setGalleryUploading(false);
+    e.target.value = "";
+  }
+
+  async function handleRemoveGalleryPhoto(photo: EntertainerPhoto) {
+    await supabase.from("entertainer_photos").delete().eq("id", photo.id);
+    setGallery((prev) => prev.filter((p) => p.id !== photo.id));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -103,7 +146,7 @@ export default function ProfileForm({
         </div>
         <div>
           <label className="inline-block rounded-full px-4 py-2 bg-ink text-cream text-sm font-semibold cursor-pointer hover:bg-tangerine transition-colors">
-            {uploading ? "Uploading..." : "Upload photo"}
+            {uploading ? "Uploading..." : "Upload profile photo"}
             <input
               type="file"
               accept="image/*"
@@ -212,6 +255,46 @@ export default function ProfileForm({
       {message && (
         <p className="text-center text-sm font-semibold text-teal">{message}</p>
       )}
+
+      <div className="pt-6 border-t border-ink/10">
+        <h2 className="font-heading font-semibold text-lg text-ink mb-1">
+          Gallery photos
+        </h2>
+        <p className="text-sm text-ink/60 mb-4">
+          Show off past events — parents can see these on your profile
+          alongside your bio.
+        </p>
+
+        {gallery.length > 0 && (
+          <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 mb-4">
+            {gallery.map((photo) => (
+              <div key={photo.id} className="relative aspect-square rounded-xl overflow-hidden bg-ink/5">
+                <Image src={photo.photo_url} alt="" fill className="object-cover" />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveGalleryPhoto(photo)}
+                  className="absolute top-1 right-1 w-6 h-6 rounded-full bg-ink/70 text-white text-xs font-bold flex items-center justify-center hover:bg-plum"
+                  aria-label="Remove photo"
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <label className="inline-block rounded-full px-4 py-2 border border-ink/15 text-ink text-sm font-semibold cursor-pointer hover:bg-ink/5 transition-colors">
+          {galleryUploading ? "Uploading..." : "Add photos"}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handleGalleryUpload}
+            className="hidden"
+            disabled={galleryUploading}
+          />
+        </label>
+      </div>
     </form>
   );
 }

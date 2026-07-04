@@ -11,11 +11,21 @@ export default async function DashboardPage() {
 
   if (!user) redirect("/login");
 
+  // This dashboard is for building an entertainer profile. Parent accounts
+  // have their own equivalent page.
+  if (user.user_metadata?.role === "parent") redirect("/my-bookings");
+
   const { data: existing } = await supabase
     .from("entertainers")
     .select("*")
     .eq("id", user.id)
     .maybeSingle();
+
+  const { data: galleryPhotos } = await supabase
+    .from("entertainer_photos")
+    .select("*")
+    .eq("entertainer_id", user.id)
+    .order("created_at", { ascending: true });
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-12">
@@ -30,6 +40,7 @@ export default async function DashboardPage() {
         userId={user.id}
         userEmail={user.email ?? ""}
         existing={existing}
+        galleryPhotos={galleryPhotos ?? []}
       />
     </div>
   );

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import DashboardNav from "@/components/DashboardNav";
 import { BookingRequest } from "@/lib/types";
@@ -24,15 +25,18 @@ export default async function RequestsPage() {
         Booking requests
       </h1>
       <p className="text-ink/60 mb-8">
-        Parents and organisers who've reached out about your act.
+        Parents and organisers who've reached out about your act. Reply to
+        them right here — keeping it in Kephi means there's always a record
+        of the conversation.
       </p>
 
       {requests && requests.length > 0 ? (
         <div className="space-y-4">
           {requests.map((r: BookingRequest) => (
-            <div
+            <Link
               key={r.id}
-              className="bg-white rounded-kephi card-shadow p-5"
+              href={`/bookings/${r.id}`}
+              className="block bg-white rounded-kephi card-shadow p-5 hover:-translate-y-0.5 transition-transform"
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-heading font-semibold text-ink">
@@ -42,23 +46,20 @@ export default async function RequestsPage() {
                   {r.status}
                 </span>
               </div>
-              <p className="text-sm text-ink/60 mt-1">
-                <a href={`mailto:${r.parent_email}`} className="text-tangerine">
-                  {r.parent_email}
-                </a>
-                {r.parent_phone ? ` · ${r.parent_phone}` : ""}
-              </p>
               {r.event_date && (
                 <p className="text-sm text-ink/60 mt-1">
                   Event date: {r.event_date}
                 </p>
               )}
               {r.message && (
-                <p className="text-ink/80 mt-3 whitespace-pre-line">
+                <p className="text-ink/80 mt-3 whitespace-pre-line line-clamp-2">
                   {r.message}
                 </p>
               )}
-            </div>
+              <p className="text-tangerine text-sm font-semibold mt-3">
+                Open conversation &rarr;
+              </p>
+            </Link>
           ))}
         </div>
       ) : (

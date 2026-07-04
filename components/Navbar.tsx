@@ -52,6 +52,15 @@ export default async function Navbar() {
             </Link>
           )}
 
+          {user && !isEntertainer && (
+            <Link
+              href="/my-bookings"
+              className="hover:text-tangerine transition-colors hidden sm:inline"
+            >
+              My bookings
+            </Link>
+          )}
+
           {user ? (
             <LogoutButton />
           ) : (

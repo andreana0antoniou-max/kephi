@@ -26,3 +26,18 @@ export type BookingRequest = {
   status: "new" | "replied" | "booked" | "declined";
   created_at: string;
 };
+
+export type Message = {
+  id: string;
+  booking_request_id: string;
+  sender_id: string;
+  body: string;
+  created_at: string;
+};
+
+export type EntertainerPhoto = {
+  id: string;
+  entertainer_id: string;
+  photo_url: string;
+  created_at: string;
+};

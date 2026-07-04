@@ -95,3 +95,59 @@ create policy "Entertainers can update their own photo"
     bucket_id = 'entertainer-photos'
     and auth.uid()::text = (storage.foldername(name))[1]
   );
+
+-- 4. Messages, tied to a specific booking request ---------------------------
+create table if not exists messages (
+  id uuid primary key default gen_random_uuid(),
+  booking_request_id uuid not null references booking_requests (id) on delete cascade,
+  sender_id uuid not null references auth.users (id) on delete cascade,
+  body text not null,
+  created_at timestamptz default now()
+);
+
+alter table messages enable row level security;
+
+create policy "Participants can view messages on their booking"
+  on messages for select
+  using (
+    exists (
+      select 1 from booking_requests br
+      where br.id = messages.booking_request_id
+        and (br.parent_id = auth.uid() or br.entertainer_id = auth.uid())
+    )
+  );
+
+create policy "Participants can send messages on their booking"
+  on messages for insert
+  with check (
+    sender_id = auth.uid()
+    and exists (
+      select 1 from booking_requests br
+      where br.id = messages.booking_request_id
+        and (br.parent_id = auth.uid() or br.entertainer_id = auth.uid())
+    )
+  );
+
+alter publication supabase_realtime add table messages;
+
+-- 5. Entertainer photo galleries ---------------------------------------------
+create table if not exists entertainer_photos (
+  id uuid primary key default gen_random_uuid(),
+  entertainer_id uuid not null references entertainers (id) on delete cascade,
+  photo_url text not null,
+  created_at timestamptz default now()
+);
+
+alter table entertainer_photos enable row level security;
+
+create policy "Entertainer gallery photos are publicly viewable"
+  on entertainer_photos for select
+  using (true);
+
+create policy "Entertainers can add their own gallery photos"
+  on entertainer_photos for insert
+  with check (auth.uid() = entertainer_id);
+
+create policy "Entertainers can delete their own gallery photos"
+  on entertainer_photos for delete
+  using (auth.uid() = entertainer_id);

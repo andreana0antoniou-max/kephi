@@ -1,5 +1,25 @@
 # Kephi — starter codebase
 
+## Update: in-app messaging + entertainer photo galleries
+
+Two more things need action if you've already deployed:
+
+1. **Run a second migration in Supabase** — same process as before: SQL
+   Editor → New query → paste in the entire contents of
+   `supabase/migration_003_messaging_and_galleries.sql` → Run.
+2. **Push the updated code** — `git add .`, `git commit -m "..."`, `git push`.
+
+What's new:
+- Parents and entertainers now talk **inside Kephi** — once a booking
+  request is sent, both sides land on a shared conversation page
+  (`/bookings/[id]`) instead of emailing each other. Messages appear live
+  without refreshing.
+- Parents now have their own `/my-bookings` page to see everything they've
+  sent and jump back into a conversation.
+- Entertainers can add extra photos to their profile — a gallery beyond the
+  single profile picture — from their dashboard. Shown on their public
+  profile under their bio.
+
 ## Update: accounts now required to book (read this if you already deployed)
 
 If you've already set up Supabase and deployed once, two things changed that

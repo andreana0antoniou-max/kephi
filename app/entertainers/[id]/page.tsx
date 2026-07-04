@@ -24,6 +24,12 @@ export default async function EntertainerProfilePage({
     data: { user },
   } = await supabase.auth.getUser();
 
+  const { data: galleryPhotos } = await supabase
+    .from("entertainer_photos")
+    .select("*")
+    .eq("entertainer_id", id)
+    .order("created_at", { ascending: true });
+
   const accent = accentForType(entertainer.entertainer_type);
   const accentText: Record<string, string> = {
     tangerine: "text-tangerine",
@@ -71,6 +77,29 @@ export default async function EntertainerProfilePage({
           <p className="mt-6 text-ink/80 leading-relaxed whitespace-pre-line">
             {entertainer.bio}
           </p>
+        )}
+
+        {galleryPhotos && galleryPhotos.length > 0 && (
+          <div className="mt-8">
+            <h2 className="font-heading font-semibold text-lg text-ink mb-3">
+              Gallery
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {galleryPhotos.map((photo) => (
+                <div
+                  key={photo.id}
+                  className="relative aspect-square rounded-xl overflow-hidden bg-ink/5"
+                >
+                  <Image
+                    src={photo.photo_url}
+                    alt={`${entertainer.business_name} — event photo`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
         )}
       </div>
 

@@ -24,7 +24,7 @@ function ParentSignupForm() {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: { data: { name } },
+      options: { data: { name, role: "parent" } },
     });
 
     setLoading(false);
