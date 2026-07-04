@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import DashboardNav from "@/components/DashboardNav";
 import ProfileForm from "@/components/ProfileForm";
 import AvailabilityManager from "@/components/AvailabilityManager";
 
@@ -35,7 +34,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-12">
-      <DashboardNav />
       <h1 className="font-heading font-semibold text-2xl text-ink mb-1">
         {existing ? "Edit your profile" : "Create your profile"}
       </h1>

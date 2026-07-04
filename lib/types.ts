@@ -72,3 +72,13 @@ export type BookingOffer = {
   status: "pending" | "accepted" | "declined";
   created_at: string;
 };
+
+export type EntertainerReview = {
+  id: string;
+  booking_request_id: string;
+  entertainer_id: string;
+  parent_id: string;
+  rating: number;
+  body: string | null;
+  created_at: string;
+};

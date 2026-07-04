@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import ParentNav from "@/components/ParentNav";
 import ParentNameForm from "@/components/ParentNameForm";
 import { ParentNote } from "@/lib/types";
 
@@ -30,7 +29,6 @@ export default async function MyProfilePage() {
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-12">
-      <ParentNav />
       <h1 className="font-heading font-semibold text-2xl text-ink mb-1">
         My profile
       </h1>

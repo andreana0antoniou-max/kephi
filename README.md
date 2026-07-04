@@ -1,5 +1,38 @@
 # Kephi — starter codebase
 
+## Update: nav restructure, reviews, dark navbar, auto-calendar-block
+
+If you've already deployed:
+
+1. **Run a migration** — `supabase/migration_006_reviews_and_autoblock.sql`.
+2. **Push the code**.
+
+What's new:
+- **Navigation restructure**: "Booking Requests" / "My Bookings" are now
+  top-level nav links next to "My Profile" — no longer nested inside the
+  profile page. They show a dot and go bold when there's an unread message
+  anywhere in that person's conversations.
+- **Reviews**: parents can leave a public star rating + review on an
+  entertainer's profile, but only after a booking is actually confirmed
+  (status = "booked") — not before, and not from anyone who never booked.
+  Same confirmed-booking rule now applies to the entertainer's notes about
+  a parent.
+- **Auto-calendar-block**: once a date is confirmed through the in-chat
+  offer flow, it's automatically added to the entertainer's unavailable
+  dates — no manual step needed. This runs as a database trigger, so it
+  works no matter which side accepted.
+- **Navbar redesign**: dark background for real contrast against the cream
+  page (this was blending in before), using your actual logo file
+  recomposited onto the dark background rather than a redrawn version.
+
+**Not addressed yet, flagged for a closer look:**
+- The "feels empty" feedback — I made one concrete change (star ratings
+  now show on entertainer profiles, which adds some visual weight), but
+  I'd like a screenshot of the specific page/section that feels sparse
+  before guessing further.
+- Cancellation policy tiers — this depends on payments existing, so it's
+  bundled into the Stripe build whenever that's ready.
+
 ## Update: availability + book-a-date-in-chat
 
 If you've already deployed:

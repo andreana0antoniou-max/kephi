@@ -42,6 +42,17 @@ export default async function EntertainerProfilePage({
     .eq("entertainer_id", id)
     .order("created_at", { ascending: true });
 
+  const { data: reviews } = await supabase
+    .from("entertainer_reviews")
+    .select("*")
+    .eq("entertainer_id", id)
+    .order("created_at", { ascending: false });
+
+  const reviewCount = reviews?.length ?? 0;
+  const avgRating = reviewCount
+    ? (reviews!.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1)
+    : null;
+
   const accent = accentForType(entertainer.entertainer_type);
   const accentText: Record<string, string> = {
     tangerine: "text-tangerine",
@@ -82,6 +93,14 @@ export default async function EntertainerProfilePage({
         <h1 className="font-heading font-semibold text-3xl text-ink mt-1">
           {entertainer.business_name}
         </h1>
+        {avgRating && (
+          <p className="text-sm font-semibold text-ink/70 mt-1">
+            ★ {avgRating}{" "}
+            <span className="text-ink/40 font-normal">
+              ({reviewCount} review{reviewCount === 1 ? "" : "s"})
+            </span>
+          </p>
+        )}
         <p className="text-ink/60 mt-1">
           {entertainer.town}
           {entertainer.region ? `, ${entertainer.region}` : ""}
@@ -116,6 +135,30 @@ export default async function EntertainerProfilePage({
                     fill
                     className="object-cover"
                   />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {reviews && reviews.length > 0 && (
+          <div className="mt-8">
+            <h2 className="font-heading font-semibold text-lg text-ink mb-3">
+              Reviews
+            </h2>
+            <div className="space-y-3">
+              {reviews.map((review) => (
+                <div key={review.id} className="bg-white rounded-kephi card-shadow p-4">
+                  <p className="text-gold">
+                    {"★".repeat(review.rating)}
+                    {"☆".repeat(5 - review.rating)}
+                  </p>
+                  {review.body && (
+                    <p className="text-ink/80 mt-1 whitespace-pre-line">{review.body}</p>
+                  )}
+                  <p className="text-xs text-ink/40 mt-2">
+                    {new Date(review.created_at).toLocaleDateString()}
+                  </p>
                 </div>
               ))}
             </div>

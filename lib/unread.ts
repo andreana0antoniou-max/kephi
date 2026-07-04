@@ -1,6 +1,21 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 
 /**
+ * Fetches the booking_request ids a user is party to, either as the
+ * entertainer or the parent. Used to check for unread messages at the
+ * navbar level, across every conversation at once.
+ */
+export async function getUserBookingIds(
+  supabase: SupabaseClient,
+  userId: string,
+  as: "entertainer" | "parent"
+): Promise<string[]> {
+  const column = as === "entertainer" ? "entertainer_id" : "parent_id";
+  const { data } = await supabase.from("booking_requests").select("id").eq(column, userId);
+  return (data ?? []).map((d) => d.id);
+}
+
+/**
  * Given a list of booking_request ids, returns the subset that have a
  * message newer than the user's last read time for that booking — i.e.
  * ones that should show an "unread" indicator. A booking's own latest

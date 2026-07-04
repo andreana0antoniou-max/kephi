@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import ParentNav from "@/components/ParentNav";
 import { getUnreadBookingIds } from "@/lib/unread";
 
 export default async function MyBookingsPage() {
@@ -27,7 +26,6 @@ export default async function MyBookingsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-12">
-      <ParentNav />
       <h1 className="font-heading font-semibold text-2xl text-ink mb-1">
         My bookings
       </h1>

@@ -5,6 +5,7 @@ import Image from "next/image";
 import MessageThread from "@/components/MessageThread";
 import ParentNoteForm from "@/components/ParentNoteForm";
 import BookingOfferPanel from "@/components/BookingOfferPanel";
+import ReviewForm from "@/components/ReviewForm";
 
 export default async function BookingPage({
   params,
@@ -32,10 +33,18 @@ export default async function BookingPage({
   const isEntertainer = booking.entertainer_id === user.id;
   if (!isParent && !isEntertainer) notFound();
 
+  const isBooked = booking.status === "booked";
+
   const { data: unavailable } = await supabase
     .from("unavailable_dates")
     .select("date")
     .eq("entertainer_id", booking.entertainer_id);
+
+  const { data: existingReview } = await supabase
+    .from("entertainer_reviews")
+    .select("*")
+    .eq("booking_request_id", booking.id)
+    .maybeSingle();
 
   const otherPartyName = isParent
     ? booking.entertainers?.business_name ?? "the entertainer"
@@ -81,9 +90,35 @@ export default async function BookingPage({
 
       <MessageThread bookingRequestId={booking.id} />
 
-      {isEntertainer && (
+      {/* Notes and reviews only unlock once a date's actually confirmed —
+          stops anyone leaving feedback without a real booking behind it. */}
+      {isEntertainer && isBooked && (
         <div className="mt-4">
           <ParentNoteForm parentId={booking.parent_id} parentName={booking.parent_name} />
+        </div>
+      )}
+
+      {isParent && isBooked && (
+        <div className="mt-4">
+          {existingReview ? (
+            <div className="bg-white rounded-kephi card-shadow p-5">
+              <p className="font-semibold text-ink mb-1">
+                {"★".repeat(existingReview.rating)}
+                {"☆".repeat(5 - existingReview.rating)}
+              </p>
+              {existingReview.body && (
+                <p className="text-ink/70 whitespace-pre-line">{existingReview.body}</p>
+              )}
+              <p className="text-xs text-ink/40 mt-2">Your review — thanks!</p>
+            </div>
+          ) : (
+            <ReviewForm
+              bookingRequestId={booking.id}
+              entertainerId={booking.entertainer_id}
+              parentId={user.id}
+              entertainerName={otherPartyName}
+            />
+          )}
         </div>
       )}
     </div>

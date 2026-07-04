@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import ParentNav from "@/components/ParentNav";
 import EntertainerCard from "@/components/EntertainerCard";
 import { Entertainer } from "@/lib/types";
 
@@ -25,7 +24,6 @@ export default async function LikedPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-5 py-12">
-      <ParentNav />
       <h1 className="font-heading font-semibold text-2xl text-ink mb-1">
         Liked entertainers
       </h1>

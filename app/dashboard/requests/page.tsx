@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import DashboardNav from "@/components/DashboardNav";
 import { getUnreadBookingIds } from "@/lib/unread";
 import { BookingRequest } from "@/lib/types";
 
@@ -27,7 +26,6 @@ export default async function RequestsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-12">
-      <DashboardNav />
       <h1 className="font-heading font-semibold text-2xl text-ink mb-1">
         Booking requests
       </h1>
