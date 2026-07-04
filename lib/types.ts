@@ -56,3 +56,19 @@ export type ParentNote = {
   body: string;
   created_at: string;
 };
+
+export type UnavailableDate = {
+  id: string;
+  entertainer_id: string;
+  date: string;
+  created_at: string;
+};
+
+export type BookingOffer = {
+  id: string;
+  booking_request_id: string;
+  proposed_by: string;
+  proposed_date: string;
+  status: "pending" | "accepted" | "declined";
+  created_at: string;
+};

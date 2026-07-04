@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import DashboardNav from "@/components/DashboardNav";
 import ProfileForm from "@/components/ProfileForm";
+import AvailabilityManager from "@/components/AvailabilityManager";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -27,6 +28,11 @@ export default async function DashboardPage() {
     .eq("entertainer_id", user.id)
     .order("created_at", { ascending: true });
 
+  const { data: unavailableDates } = await supabase
+    .from("unavailable_dates")
+    .select("*")
+    .eq("entertainer_id", user.id);
+
   return (
     <div className="max-w-2xl mx-auto px-5 py-12">
       <DashboardNav />
@@ -42,6 +48,7 @@ export default async function DashboardPage() {
         existing={existing}
         galleryPhotos={galleryPhotos ?? []}
       />
+      <AvailabilityManager userId={user.id} initialDates={unavailableDates ?? []} />
     </div>
   );
 }

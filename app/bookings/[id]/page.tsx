@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import MessageThread from "@/components/MessageThread";
 import ParentNoteForm from "@/components/ParentNoteForm";
+import BookingOfferPanel from "@/components/BookingOfferPanel";
 
 export default async function BookingPage({
   params,
@@ -30,6 +31,11 @@ export default async function BookingPage({
   const isParent = booking.parent_id === user.id;
   const isEntertainer = booking.entertainer_id === user.id;
   if (!isParent && !isEntertainer) notFound();
+
+  const { data: unavailable } = await supabase
+    .from("unavailable_dates")
+    .select("date")
+    .eq("entertainer_id", booking.entertainer_id);
 
   const otherPartyName = isParent
     ? booking.entertainers?.business_name ?? "the entertainer"
@@ -62,15 +68,16 @@ export default async function BookingPage({
           <h1 className="font-heading font-semibold text-2xl text-ink">
             {otherPartyName}
           </h1>
-          <p className="text-ink/60 text-sm mt-1">
-            {booking.event_date
-              ? `Event date: ${booking.event_date}`
-              : "No event date set yet"}
-            {" · "}
-            <span className="capitalize">{booking.status}</span>
-          </p>
         </div>
       </div>
+
+      <BookingOfferPanel
+        bookingRequestId={booking.id}
+        currentUserId={user.id}
+        bookingStatus={booking.status}
+        bookingEventDate={booking.event_date}
+        unavailableDates={(unavailable ?? []).map((u) => u.date)}
+      />
 
       <MessageThread bookingRequestId={booking.id} />
 

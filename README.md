@@ -1,5 +1,25 @@
 # Kephi — starter codebase
 
+## Update: availability + book-a-date-in-chat
+
+If you've already deployed:
+
+1. **Run a migration** — `supabase/migration_005_availability_and_offers.sql`.
+2. **Push the code**.
+
+What's new:
+- Entertainers can mark dates they're unavailable, from their **My Profile**
+  page.
+- Inside a booking's chat, either side can **propose a date**. The other
+  side sees Accept/Decline. Accepting locks it in — the booking shows
+  "✓ Booked for [date]" everywhere it appears (booking lists, the chat
+  itself). If a parent proposes a date the entertainer's already marked
+  unavailable, they get a gentle heads-up but can still send it.
+
+**Still queued, waiting on you:**
+- Email notifications — needs an email service (e.g. Resend) set up first.
+- Payments — needs your Stripe account set up first.
+
 ## Update: likes, notes, unread indicators, nav cleanup
 
 If you've already deployed:
