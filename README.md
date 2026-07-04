@@ -1,5 +1,33 @@
 # Kephi — starter codebase
 
+## Update: likes, notes, unread indicators, nav cleanup
+
+If you've already deployed:
+
+1. **Run a migration** — `supabase/migration_004_likes_notes_unread.sql`, same
+   process as before.
+2. **Push the code**.
+
+What's new:
+- Sending a booking request now drops you straight into the chat — no more
+  "the entertainer will reply to your email."
+- Parents can like entertainer profiles (heart icon) and see everything
+  they've liked on a new **Liked** page.
+- The navbar logo is bigger, and "Dashboard" is now labelled **My Profile**.
+- Parents now have their own **My Profile** page — showing their account
+  and a section for notes entertainers have left about them after a
+  booking (visible only to that parent and the entertainer who wrote it).
+- Booking lists (both sides) show a small dot next to any conversation with
+  unread messages.
+- In a parent's view of a conversation, the entertainer's photo now shows
+  next to their name.
+
+**Not yet built, on purpose:**
+- **Entertainer availability calendars** and an in-chat "propose a date /
+  accept it / it's booked" flow — bigger pieces, coming next.
+- **Email notifications** (for new messages, likes, etc.) — needs an email
+  sending service (e.g. Resend) set up first, same as Stripe for payments.
+
 ## Update: in-app messaging + entertainer photo galleries
 
 Two more things need action if you've already deployed:

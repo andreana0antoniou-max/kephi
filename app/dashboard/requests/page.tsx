@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import DashboardNav from "@/components/DashboardNav";
+import { getUnreadBookingIds } from "@/lib/unread";
 import { BookingRequest } from "@/lib/types";
 
 export default async function RequestsPage() {
@@ -17,6 +18,12 @@ export default async function RequestsPage() {
     .select("*")
     .eq("entertainer_id", user.id)
     .order("created_at", { ascending: false });
+
+  const unread = await getUnreadBookingIds(
+    supabase,
+    user.id,
+    (requests ?? []).map((r) => r.id)
+  );
 
   return (
     <div className="max-w-2xl mx-auto px-5 py-12">
@@ -39,8 +46,11 @@ export default async function RequestsPage() {
               className="block bg-white rounded-kephi card-shadow p-5 hover:-translate-y-0.5 transition-transform"
             >
               <div className="flex items-center justify-between">
-                <h3 className="font-heading font-semibold text-ink">
+                <h3 className="font-heading font-semibold text-ink flex items-center gap-2">
                   {r.parent_name}
+                  {unread.has(r.id) && (
+                    <span className="w-2 h-2 rounded-full bg-tangerine" />
+                  )}
                 </h3>
                 <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-teal/10 text-teal capitalize">
                   {r.status}

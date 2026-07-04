@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import BookingRequestForm from "@/components/BookingRequestForm";
 import BookingLoginPrompt from "@/components/BookingLoginPrompt";
+import LikeButton from "@/components/LikeButton";
 import { accentForType } from "@/lib/constants";
 
 export default async function EntertainerProfilePage({
@@ -23,6 +24,17 @@ export default async function EntertainerProfilePage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  let isLiked = false;
+  if (user) {
+    const { data: like } = await supabase
+      .from("likes")
+      .select("id")
+      .eq("parent_id", user.id)
+      .eq("entertainer_id", id)
+      .maybeSingle();
+    isLiked = !!like;
+  }
 
   const { data: galleryPhotos } = await supabase
     .from("entertainer_photos")
@@ -56,9 +68,17 @@ export default async function EntertainerProfilePage({
           )}
         </div>
 
-        <span className={`text-sm font-bold ${accentText[accent]}`}>
-          {entertainer.entertainer_type}
-        </span>
+        <div className="flex items-center justify-between">
+          <span className={`text-sm font-bold ${accentText[accent]}`}>
+            {entertainer.entertainer_type}
+          </span>
+          <LikeButton
+            entertainerId={entertainer.id}
+            initiallyLiked={isLiked}
+            isLoggedIn={!!user}
+            className="w-9 h-9 rounded-full border border-ink/10 flex items-center justify-center hover:bg-ink/5 transition-colors"
+          />
+        </div>
         <h1 className="font-heading font-semibold text-3xl text-ink mt-1">
           {entertainer.business_name}
         </h1>

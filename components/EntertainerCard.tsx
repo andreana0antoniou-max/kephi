@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Entertainer } from "@/lib/types";
 import { accentForType } from "@/lib/constants";
+import LikeButton from "@/components/LikeButton";
 
 const accentClasses: Record<string, string> = {
   tangerine: "bg-tangerine/10 text-tangerine",
@@ -10,7 +11,15 @@ const accentClasses: Record<string, string> = {
   gold: "bg-gold/10 text-[#8a6a1e]",
 };
 
-export default function EntertainerCard({ entertainer }: { entertainer: Entertainer }) {
+export default function EntertainerCard({
+  entertainer,
+  isLiked = false,
+  isLoggedIn = false,
+}: {
+  entertainer: Entertainer;
+  isLiked?: boolean;
+  isLoggedIn?: boolean;
+}) {
   const accent = accentForType(entertainer.entertainer_type);
 
   return (
@@ -31,6 +40,13 @@ export default function EntertainerCard({ entertainer }: { entertainer: Entertai
             {entertainer.business_name.charAt(0)}
           </div>
         )}
+        <div className="absolute top-2 right-2">
+          <LikeButton
+            entertainerId={entertainer.id}
+            initiallyLiked={isLiked}
+            isLoggedIn={isLoggedIn}
+          />
+        </div>
       </div>
       <div className="p-4">
         <span

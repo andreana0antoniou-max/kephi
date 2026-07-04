@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function BookingRequestForm({
@@ -9,7 +10,8 @@ export default function BookingRequestForm({
   entertainerId: string;
 }) {
   const supabase = createClient();
-  const [status, setStatus] = useState<"loading" | "idle" | "sending" | "sent" | "error">(
+  const router = useRouter();
+  const [status, setStatus] = useState<"loading" | "idle" | "sending" | "error">(
     "loading"
   );
   const [userId, setUserId] = useState<string | null>(null);
@@ -44,29 +46,31 @@ export default function BookingRequestForm({
     if (!userId) return;
     setStatus("sending");
 
-    const { error } = await supabase.from("booking_requests").insert({
-      entertainer_id: entertainerId,
-      parent_id: userId,
-      parent_name: form.parent_name,
-      parent_email: form.parent_email,
-      parent_phone: form.parent_phone || null,
-      event_date: form.event_date || null,
-      message: form.message || null,
-    });
+    const { data, error } = await supabase
+      .from("booking_requests")
+      .insert({
+        entertainer_id: entertainerId,
+        parent_id: userId,
+        parent_name: form.parent_name,
+        parent_email: form.parent_email,
+        parent_phone: form.parent_phone || null,
+        event_date: form.event_date || null,
+        message: form.message || null,
+      })
+      .select()
+      .single();
 
-    setStatus(error ? "error" : "sent");
+    if (error || !data) {
+      setStatus("error");
+      return;
+    }
+
+    // Drop straight into the conversation — no more "we'll email you".
+    router.push(`/bookings/${data.id}`);
   }
 
   if (status === "loading") {
     return <div className="h-40" />;
-  }
-
-  if (status === "sent") {
-    return (
-      <div className="rounded-kephi bg-teal/10 text-teal p-5 font-semibold text-center">
-        Request sent! The entertainer will reply to {form.parent_email} soon.
-      </div>
-    );
   }
 
   return (

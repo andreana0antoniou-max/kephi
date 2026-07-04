@@ -23,7 +23,7 @@ export default async function Navbar() {
     <header className="border-b border-ink/10 bg-cream/95 backdrop-blur sticky top-0 z-40">
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5">
-          <Image src="/kephi-mark.png" alt="" width={30} height={30} className="rounded-lg" />
+          <Image src="/kephi-mark.png" alt="" width={42} height={42} className="rounded-lg" />
           <span className="font-heading font-semibold text-xl tracking-tight text-ink">
             Kephi
           </span>
@@ -48,16 +48,16 @@ export default async function Navbar() {
               href="/dashboard"
               className="hover:text-tangerine transition-colors hidden sm:inline"
             >
-              Dashboard
+              My Profile
             </Link>
           )}
 
           {user && !isEntertainer && (
             <Link
-              href="/my-bookings"
+              href="/my-profile"
               className="hover:text-tangerine transition-colors hidden sm:inline"
             >
-              My bookings
+              My Profile
             </Link>
           )}
 

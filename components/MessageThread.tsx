@@ -19,6 +19,19 @@ export default function MessageThread({
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setUserId(user?.id ?? null);
+      if (user) {
+        supabase
+          .from("message_reads")
+          .upsert(
+            {
+              booking_request_id: bookingRequestId,
+              user_id: user.id,
+              last_read_at: new Date().toISOString(),
+            },
+            { onConflict: "booking_request_id,user_id" }
+          )
+          .then(() => {});
+      }
     });
 
     supabase

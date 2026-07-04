@@ -26,6 +26,20 @@ export default async function HomePage({
 
   const { data: entertainers } = await query;
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let likedIds = new Set<string>();
+  if (user && entertainers && entertainers.length > 0) {
+    const { data: likes } = await supabase
+      .from("likes")
+      .select("entertainer_id")
+      .eq("parent_id", user.id)
+      .in("entertainer_id", entertainers.map((e) => e.id));
+    likedIds = new Set((likes ?? []).map((l) => l.entertainer_id));
+  }
+
   return (
     <div>
       <section className="max-w-6xl mx-auto px-5 pt-14 pb-10 text-center">
@@ -46,7 +60,12 @@ export default async function HomePage({
         {entertainers && entertainers.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {entertainers.map((entertainer: Entertainer) => (
-              <EntertainerCard key={entertainer.id} entertainer={entertainer} />
+              <EntertainerCard
+                key={entertainer.id}
+                entertainer={entertainer}
+                isLiked={likedIds.has(entertainer.id)}
+                isLoggedIn={!!user}
+              />
             ))}
           </div>
         ) : (

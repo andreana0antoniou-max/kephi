@@ -41,3 +41,18 @@ export type EntertainerPhoto = {
   photo_url: string;
   created_at: string;
 };
+
+export type Like = {
+  id: string;
+  parent_id: string;
+  entertainer_id: string;
+  created_at: string;
+};
+
+export type ParentNote = {
+  id: string;
+  parent_id: string;
+  author_id: string;
+  body: string;
+  created_at: string;
+};

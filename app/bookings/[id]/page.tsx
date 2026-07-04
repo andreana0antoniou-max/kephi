@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import MessageThread from "@/components/MessageThread";
+import ParentNoteForm from "@/components/ParentNoteForm";
 
 export default async function BookingPage({
   params,
@@ -19,7 +21,7 @@ export default async function BookingPage({
 
   const { data: booking } = await supabase
     .from("booking_requests")
-    .select("*, entertainers(business_name, town)")
+    .select("*, entertainers(business_name, town, photo_url)")
     .eq("id", id)
     .single();
 
@@ -39,20 +41,44 @@ export default async function BookingPage({
         &larr; Back
       </Link>
 
-      <div className="mt-4 mb-6">
-        <h1 className="font-heading font-semibold text-2xl text-ink">
-          {otherPartyName}
-        </h1>
-        <p className="text-ink/60 text-sm mt-1">
-          {booking.event_date
-            ? `Event date: ${booking.event_date}`
-            : "No event date set yet"}
-          {" · "}
-          <span className="capitalize">{booking.status}</span>
-        </p>
+      <div className="mt-4 mb-6 flex items-center gap-4">
+        {isParent && (
+          <div className="relative w-14 h-14 rounded-full overflow-hidden bg-ink/5 flex-shrink-0">
+            {booking.entertainers?.photo_url ? (
+              <Image
+                src={booking.entertainers.photo_url}
+                alt=""
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-ink/30 font-heading text-xl">
+                {otherPartyName.charAt(0)}
+              </div>
+            )}
+          </div>
+        )}
+        <div>
+          <h1 className="font-heading font-semibold text-2xl text-ink">
+            {otherPartyName}
+          </h1>
+          <p className="text-ink/60 text-sm mt-1">
+            {booking.event_date
+              ? `Event date: ${booking.event_date}`
+              : "No event date set yet"}
+            {" · "}
+            <span className="capitalize">{booking.status}</span>
+          </p>
+        </div>
       </div>
 
       <MessageThread bookingRequestId={booking.id} />
+
+      {isEntertainer && (
+        <div className="mt-4">
+          <ParentNoteForm parentId={booking.parent_id} parentName={booking.parent_name} />
+        </div>
+      )}
     </div>
   );
 }
