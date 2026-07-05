@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendNotificationEmail } from "@/lib/email";
+import { shouldSendNotification } from "@/lib/notificationThrottle";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -47,6 +48,14 @@ async function notifyEntertainer(entertainerId: string, likerId: string) {
   if (!recipient?.user?.email) return;
 
   if (recipient.user.user_metadata?.notify_likes === false) return;
+
+  const shouldSend = await shouldSendNotification(admin, {
+    subjectId: entertainerId,
+    recipientId: entertainerId,
+    kind: `like:${likerId}`,
+    cooldownMinutes: 30,
+  });
+  if (!shouldSend) return; // already emailed about this like recently
 
   const { data: liker } = await admin.auth.admin.getUserById(likerId);
   const likerName = (liker?.user?.user_metadata?.name as string) || "Someone";

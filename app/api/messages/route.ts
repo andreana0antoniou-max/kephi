@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendNotificationEmail } from "@/lib/email";
+import { shouldSendNotification } from "@/lib/notificationThrottle";
 
 export async function POST(request: NextRequest) {
   const supabase = await createClient();
@@ -65,6 +66,13 @@ async function notifyOtherParty(bookingRequestId: string, senderId: string) {
 
   const notifyMessages = recipient.user.user_metadata?.notify_messages;
   if (notifyMessages === false) return; // default is on unless explicitly turned off
+
+  const shouldSend = await shouldSendNotification(admin, {
+    subjectId: bookingRequestId,
+    recipientId,
+    kind: "message",
+  });
+  if (!shouldSend) return; // already emailed about this conversation recently
 
   await sendNotificationEmail({
     to: recipient.user.email,

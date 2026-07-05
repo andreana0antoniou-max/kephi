@@ -1,5 +1,15 @@
 # Kephi — starter codebase
 
+## Update: fixed the burst-notification limitation
+
+Run `supabase/migration_007_notification_throttle.sql` and push. No new
+env vars needed this time.
+
+What changed: a burst of messages sent quickly now only emails the
+recipient once, not once per message — there's a 5-minute cooldown per
+conversation before another email will go out. Rapid like/unlike clicking
+is protected the same way, with a 30-minute cooldown per person liking.
+
 ## Update: email notifications
 
 This one needs two new secret keys added — nothing to run in Supabase's SQL

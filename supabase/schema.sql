@@ -354,3 +354,15 @@ when (
   and (old.status is distinct from new.status or old.event_date is distinct from new.event_date)
 )
 execute function sync_unavailable_date_on_booking();
+
+-- 13. Throttle notification emails so bursts of activity only send one ----
+create table if not exists notification_log (
+  subject_id uuid not null,
+  recipient_id uuid not null,
+  kind text not null,
+  last_notified_at timestamptz not null default now(),
+  primary key (subject_id, recipient_id, kind)
+);
+
+alter table notification_log enable row level security;
+-- Deliberately no policies — only the server-side admin client touches this.
