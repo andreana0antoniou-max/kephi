@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ProfileForm from "@/components/ProfileForm";
 import AvailabilityManager from "@/components/AvailabilityManager";
+import NotificationSettings from "@/components/NotificationSettings";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -47,6 +48,14 @@ export default async function DashboardPage() {
         galleryPhotos={galleryPhotos ?? []}
       />
       <AvailabilityManager userId={user.id} initialDates={unavailableDates ?? []} />
+      <NotificationSettings
+        initial={{
+          notify_messages: user.user_metadata?.notify_messages ?? true,
+          notify_bookings: user.user_metadata?.notify_bookings ?? true,
+          notify_likes: user.user_metadata?.notify_likes ?? true,
+        }}
+        showBookingsAndLikes
+      />
     </div>
   );
 }

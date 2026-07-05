@@ -46,27 +46,28 @@ export default function BookingRequestForm({
     if (!userId) return;
     setStatus("sending");
 
-    const { data, error } = await supabase
-      .from("booking_requests")
-      .insert({
-        entertainer_id: entertainerId,
-        parent_id: userId,
-        parent_name: form.parent_name,
-        parent_email: form.parent_email,
-        parent_phone: form.parent_phone || null,
-        event_date: form.event_date || null,
-        message: form.message || null,
-      })
-      .select()
-      .single();
+    const res = await fetch("/api/booking-requests", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        entertainerId,
+        parentName: form.parent_name,
+        parentEmail: form.parent_email,
+        parentPhone: form.parent_phone,
+        eventDate: form.event_date,
+        message: form.message,
+      }),
+    });
 
-    if (error || !data) {
+    const data = await res.json();
+
+    if (!res.ok || !data.booking) {
       setStatus("error");
       return;
     }
 
     // Drop straight into the conversation — no more "we'll email you".
-    router.push(`/bookings/${data.id}`);
+    router.push(`/bookings/${data.booking.id}`);
   }
 
   if (status === "loading") {

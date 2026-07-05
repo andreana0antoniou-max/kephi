@@ -73,13 +73,13 @@ export default function MessageThread({
     if (!body.trim() || !userId) return;
     setSending(true);
 
-    const { error } = await supabase.from("messages").insert({
-      booking_request_id: bookingRequestId,
-      sender_id: userId,
-      body: body.trim(),
+    const res = await fetch("/api/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ bookingRequestId, body: body.trim() }),
     });
 
-    if (!error) setBody("");
+    if (res.ok) setBody("");
     setSending(false);
   }
 

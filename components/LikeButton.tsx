@@ -52,9 +52,11 @@ export default function LikeButton({
         .eq("entertainer_id", entertainerId);
       setLiked(false);
     } else {
-      await supabase
-        .from("likes")
-        .insert({ parent_id: user.id, entertainer_id: entertainerId });
+      await fetch("/api/likes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ entertainerId }),
+      });
       setLiked(true);
     }
     setBusy(false);

@@ -1,5 +1,41 @@
 # Kephi — starter codebase
 
+## Update: email notifications
+
+This one needs two new secret keys added — nothing to run in Supabase's SQL
+Editor this time, but real setup is needed before it works.
+
+**1. Add two new values to `.env.local` (and to Vercel's Environment
+Variables, same as the others):**
+
+```
+RESEND_API_KEY=re_your_real_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+```
+
+- `RESEND_API_KEY` — the key you already created in Resend.
+- `SUPABASE_SERVICE_ROLE_KEY` — a *different* key from the one you've been
+  using. In Supabase: **Project Settings → API → API Keys**, look for
+  **service_role** / **secret** (not the `anon`/`publishable` one you
+  already have). This key is powerful — it bypasses all the security rules
+  — so it only ever gets used in server-only code, never sent to a browser.
+  Guard it the same way you guard your Stripe secret key.
+
+**2. Push the code** — same as always.
+
+**What's new:**
+- Entertainers get an email when: someone sends them a message, a new
+  booking request comes in, or someone likes their profile.
+- Parents get an email when an entertainer replies to a message.
+- Everyone can turn each of these on/off individually from their profile
+  page — nothing is forced on people.
+- Emails come from `notifications@kephi.uk`, using the domain you already
+  verified with Resend.
+
+**Known limitation, on purpose for now:** sending a burst of messages
+quickly will email the recipient every time, not just once. Fine at low
+volume; worth revisiting if conversations get busy.
+
 ## Update: nav restructure, reviews, dark navbar, auto-calendar-block
 
 If you've already deployed:

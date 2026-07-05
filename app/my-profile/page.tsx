@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import ParentNameForm from "@/components/ParentNameForm";
+import NotificationSettings from "@/components/NotificationSettings";
 import { ParentNote } from "@/lib/types";
 
 export default async function MyProfilePage() {
@@ -60,6 +61,11 @@ export default async function MyProfilePage() {
           <p className="text-ink/50 text-sm">No notes yet.</p>
         )}
       </div>
+
+      <NotificationSettings
+        initial={{ notify_messages: user.user_metadata?.notify_messages ?? true }}
+        showBookingsAndLikes={false}
+      />
     </div>
   );
 }
